@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Sudoku & Chess Game</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f4f4f4; }
+    h1 { text-align: center; }
+    #sudoku-board {
+      display: grid;
+      grid-template-columns: repeat(9, 40px);
+      grid-template-rows: repeat(9, 40px);
+      gap: 0;
+      margin: 30px auto;
+      width: 362px;
+      background: #222;
+      border: 4px solid #333;
+    }
+    .cell {
+      width: 40px;
+      height: 40px;
+      text-align: center;
+      font-size: 20px;
+      background: #fff;
+      border: 1px solid #bbb;
+      outline: none;
+      box-sizing: border-box;
+    }
+    .cell:disabled {
+      background: #e0e0e0;
+      color: #333;
+    }
+    .bold-right {
+      border-right: 3px solid #333 !important;
+    }
+    .bold-bottom {
+      border-bottom: 3px solid #333 !important;
+    }
+    #check-btn {
+      display: block;
+      margin: 20px auto;
+      padding: 10px 30px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    #message {
+      text-align: center;
+      font-size: 18px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div id="sudoku-container">
+    <h1>Sudoku Game</h1>
+    <div id="sudoku-board"></div>
+    <button id="check-btn">Check Solution</button>
+    <div id="message"></div>
+  </div>
+  <script>
+    // Simple Sudoku puzzle (0 = empty)
+    const puzzle = [
+      [5,3,0, 0,7,0, 0,0,0],
+      [6,0,0, 1,9,5, 0,0,0],
+      [0,9,8, 0,0,0, 0,6,0],
+      [8,0,0, 0,6,0, 0,0,3],
+      [4,0,0, 8,0,3, 0,0,1],
+      [7,0,0, 0,2,0, 0,0,6],
+      [0,6,0, 0,0,0, 2,8,0],
+      [0,0,0, 4,1,9, 0,0,5],
+      [0,0,0, 0,8,0, 0,7,9]
+    ];
+
+    // Solution for checking
+    const solution = [
+      [5,3,4,6,7,8,9,1,2],
+      [6,7,2,1,9,5,3,4,8],
+      [1,9,8,3,4,2,5,6,7],
+      [8,5,9,7,6,1,4,2,3],
+      [4,2,6,8,5,3,7,9,1],
+      [7,1,3,9,2,4,8,5,6],
+      [9,6,1,5,3,7,2,8,4],
+      [2,8,7,4,1,9,6,3,5],
+      [3,4,5,2,8,6,1,7,9]
+    ];
+
+    const board = document.getElementById('sudoku-board');
+
+    // Render the board
+    for (let row = 0; row < 9; row++) {
+      for (let col = 0; col < 9; col++) {
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.maxLength = 1;
+        input.className = 'cell';
+        // Add bold borders for 3x3 boxes
+        if ((col + 1) % 3 === 0 && col !== 8) input.classList.add('bold-right');
+        if ((row + 1) % 3 === 0 && row !== 8) input.classList.add('bold-bottom');
+        if (puzzle[row][col] !== 0) {
+          input.value = puzzle[row][col];
+          input.disabled = true;
+        }
+        input.dataset.row = row;
+        input.dataset.col = col;
+        input.oninput = function() {
+          this.value = this.value.replace(/[^1-9]/g, '');
+        };
+        board.appendChild(input);
+      }
+    }
+
+    // Check solution
+    document.getElementById('check-btn').onclick = function() {
+      let correct = true;
+      for (let i = 0; i < 81; i++) {
+        const cell = board.children[i];
+        const row = parseInt(cell.dataset.row);
+        const col = parseInt(cell.dataset.col);
+        if (parseInt(cell.value) !== solution[row][col]) {
+          correct = false;
+          cell.style.background = '#ffcccc';
+        } else {
+          cell.style.background = cell.disabled ? '#e0e0e0' : '#ccffcc';
+        }
+      }
+      document.getElementById('message').textContent = correct ? 'Congratulations! You solved it!' : 'Some cells are incorrect. Try again!';
+    };
+  </script>
+</body>
+</html>
+<style>
+  body {
+    background: linear-gradient(135deg, #f8ffae 0%, #43cea2 100%);
+    min-height: 100vh;
+    margin: 0;
+    transition: background 0.5s;
+  }
+  #sudoku-board {
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+    border-radius: 16px;
+    background: rgba(255,255,255,0.7);
+    animation: boardFadeIn 1s;
+  }
+  @keyframes boardFadeIn {
+    from { opacity: 0; transform: scale(0.95);}
+    to { opacity: 1; transform: scale(1);}
+  }
+  .cell {
+    background: #f9fafc;
+    border: 1px solid #b2bec3;
+    transition: background 0.3s, box-shadow 0.3s;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+  }
+  .cell:focus {
+    background: #ffeaa7;
+    box-shadow: 0 0 8px #fdcb6e;
+    border-color: #fdcb6e;
+    z-index: 1;
+    position: relative;
+  }
+  .cell:disabled {
+    background: linear-gradient(90deg, #dff9fb 0%, #f6e58d 100%);
+    color: #636e72;
+    font-weight: bold;
+    border-color: #636e72;
+  }
+  .bold-right {
+    border-right: 3px solid #00b894 !important;
+  }
+  .bold-bottom {
+    border-bottom: 3px solid #00b894 !important;
+  }
+  #check-btn {
+    background: linear-gradient(90deg, #00b894 0%, #00cec9 100%);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    transition: background 0.3s, transform 0.2s;
+  }
+  #check-btn:hover {
+    background: linear-gradient(90deg, #00cec9 0%, #00b894 100%);
+    transform: scale(1.05);
+  }
+  #message {
+    font-weight: bold;
+    text-shadow: 0 2px 8px #fff8;
+    min-height: 24px;
+    transition: color 0.4s;
+  }
+</style>
+<script>
+  // Add confetti effect on win
+  function confetti() {
+    const colors = ['#00b894', '#fdcb6e', '#00cec9', '#e17055', '#0984e3', '#fd79a8'];
+    for (let i = 0; i < 80; i++) {
+      const conf = document.createElement('div');
+      conf.style.position = 'fixed';
+      conf.style.left = Math.random() * 100 + 'vw';
+      conf.style.top = '-2vh';
+      conf.style.width = conf.style.height = Math.random() * 8 + 6 + 'px';
+      conf.style.background = colors[Math.floor(Math.random() * colors.length)];
+      conf.style.opacity = 0.8;
+      conf.style.borderRadius = '50%';
+      conf.style.pointerEvents = 'none';
+      conf.style.zIndex = 9999;
+      conf.style.transition = 'transform 2.2s cubic-bezier(.23,1.02,.64,.99), opacity 2.2s';
+      document.body.appendChild(conf);
+      setTimeout(() => {
+        conf.style.transform = `translateY(${100 + Math.random() * 30}vh) rotate(${Math.random()*360}deg)`;
+        conf.style.opacity = 0;
+      }, 10);
+      setTimeout(() => conf.remove(), 2300);
+    }
+  }
+
+  // Enhance check button feedback and message color
+  const origCheck = document.getElementById('check-btn').onclick;
+  document.getElementById('check-btn').onclick = function() {
+    origCheck();
+    const msg = document.getElementById('message');
+    if (msg.textContent.includes('Congratulations')) {
+      msg.style.color = '#00b894';
+      confetti();
+    } else {
+      msg.style.color = '#e17055';
+    }
+  };
+</script>
+
+<!-- Password Modal -->
+<div id="password-modal" style="position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.35);display:flex;align-items:center;justify-content:center;z-index:10000;">
+  <div style="background:#fff;padding:32px 24px;border-radius:12px;box-shadow:0 4px 24px #0002;min-width:260px;text-align:center;">
+    <h2 style="margin-top:0;">Enter Password</h2>
+    <input id="password-input" type="password" maxlength="12" style="padding:8px 12px;font-size:16px;border-radius:6px;border:1px solid #b2bec3;width:90%;margin-bottom:12px;">
+    <div id="password-error" style="color:#e17055;min-height:20px;font-size:14px;"></div>
+    <button id="password-submit" style="background:linear-gradient(90deg,#00b894 0%,#00cec9 100%);color:#fff;border:none;border-radius:8px;padding:8px 24px;font-size:16px;cursor:pointer;">Submit</button>
+  </div>
+</div>
+<script>
+  // Disable game UI until password is entered
+  document.body.style.overflow = 'hidden';
+  document.getElementById('sudoku-board').style.pointerEvents = 'none';
+  document.getElementById('check-btn').disabled = true;
+
+  document.getElementById('password-submit').onclick = function() {
+    const input = document.getElementById('password-input').value;
+    if (input === '230206') {
+      document.getElementById('password-modal').style.display = 'none';
+      document.body.style.overflow = '';
+      document.getElementById('sudoku-board').style.pointerEvents = '';
+      document.getElementById('check-btn').disabled = false;
+    } else {
+      document.getElementById('password-error').textContent = 'Incorrect password. Try again.';
+      document.getElementById('password-input').value = '';
+      document.getElementById('password-input').focus();
+    }
+  };
+  document.getElementById('password-input').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') document.getElementById('password-submit').click();
+  });
+  setTimeout(() => document.getElementById('password-input').focus(), 100);
+</script>
+<!-- Game Switcher -->
+<div style="text-align:center;margin:32px 0 0 0;">
+  <button id="sudoku-switch" style="background:linear-gradient(90deg,#00b894 0%,#00cec9 100%);color:#fff;border:none;border-radius:8px;padding:8px 24px;font-size:16px;cursor:pointer;margin-right:12px;">Sudoku</button>
+  <button id="chess-switch" style="background:linear-gradient(90deg,#0984e3 0%,#00b894 100%);color:#fff;border:none;border-radius:8px;padding:8px 24px;font-size:16px;cursor:pointer;">Chess</button>
+</div>
+
+<!-- Chess Game Container -->
+<div id="chess-container" style="display:none;">
+  <h1>Chess Game</h1>
+  <div id="chess-board" style="margin:30px auto;display:grid;grid-template-columns:repeat(8,48px);grid-template-rows:repeat(8,48px);width:386px;box-shadow:0 8px 32px 0 rgba(31,38,135,0.37);border-radius:16px;overflow:hidden;"></div>
+  <div id="chess-message" style="text-align:center;font-size:18px;margin-top:10px;font-weight:bold;min-height:24px;"></div>
+</div>
+
+<script>
+// --- Game Switcher ---
+const sudokuContainer = document.getElementById('sudoku-container');
+const chessContainer = document.getElementById('chess-container');
+document.getElementById('sudoku-switch').onclick = () => {
+  sudokuContainer.style.display = '';
+  chessContainer.style.display = 'none';
+  document.body.style.background = 'linear-gradient(135deg, #f8ffae 0%, #43cea2 100%)';
+};
+document.getElementById('chess-switch').onclick = () => {
+  sudokuContainer.style.display = 'none';
+  chessContainer.style.display = '';
+  document.body.style.background = 'linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%)';
+};
+
+// --- Chess Game ---
+const chessBoard = document.getElementById('chess-board');
+const chessMessage = document.getElementById('chess-message');
+const pieceUnicode = {
+  'r':'&#9814;', 'n':'&#9816;', 'b':'&#9815;', 'q':'&#9813;', 'k':'&#9812;', 'p':'&#9817;',
+  'R':'&#9820;', 'N':'&#9822;', 'B':'&#9821;', 'Q':'&#9819;', 'K':'&#9818;', 'P':'&#9823;'
+};
+// Initial FEN for starting position
+let chessState = [
+  ['R','N','B','Q','K','B','N','R'],
+  ['P','P','P','P','P','P','P','P'],
+  ['','','','','','','',''],
+  ['','','','','','','',''],
+  ['','','','','','','',''],
+  ['','','','','','','',''],
+  ['p','p','p','p','p','p','p','p'],
+  ['r','n','b','q','k','b','n','r']
+];
+let chessTurn = 'w'; // 'w' or 'b'
+let selected = null;
+let legalMoves = [];
+
+function renderChessBoard() {
+  chessBoard.innerHTML = '';
+  for (let row = 0; row < 8; row++) {
+    for (let col = 0; col < 8; col++) {
+      const sq = document.createElement('div');
+      sq.className = 'chess-square';
+      sq.style.width = '48px';
+      sq.style.height = '48px';
+      sq.style.display = 'flex';
+      sq.style.alignItems = 'center';
+      sq.style.justifyContent = 'center';
+      sq.style.fontSize = '32px';
+      sq.style.cursor = chessState[row][col] ? 'pointer' : 'default';
+      sq.style.transition = 'background 0.2s, box-shadow 0.2s';
+      sq.style.background = ((row+col)%2===0) ? '#f0d9b5' : '#b58863';
+      sq.dataset.row = row;
+      sq.dataset.col = col;
+      if (selected && selected[0] === row && selected[1] === col) {
+        sq.style.boxShadow = '0 0 0 4px #00b894 inset';
+        sq.style.background = '#ffeaa7';
+      }
+      if (legalMoves.some(([r,c])=>r===row&&c===col)) {
+        sq.style.background = '#81ecec';
+        sq.style.boxShadow = '0 0 0 4px #00b894 inset';
+        sq.style.animation = 'chessPulse 0.6s infinite alternate';
+      }
+      if (chessState[row][col]) {
+        sq.innerHTML = pieceUnicode[chessState[row][col]];
+        sq.style.userSelect = 'none';
+      }
+      sq.onclick = () => handleChessClick(row, col);
+      chessBoard.appendChild(sq);
+    }
+  }
+}
+function handleChessClick(row, col) {
+  const piece = chessState[row][col];
+  if (selected) {
+    // If clicked on a legal move, move piece
+    if (legalMoves.some(([r,c])=>r===row&&c===col)) {
+      moveChessPiece(selected, [row,col]);
+      selected = null;
+      legalMoves = [];
+      renderChessBoard();
+      checkChessGameEnd();
+      return;
+    }
+    // Deselect if clicked again
+    if (selected[0] === row && selected[1] === col) {
+      selected = null;
+      legalMoves = [];
+      renderChessBoard();
+      return;
+    }
+  }
+  // Select piece if it's player's turn
+  if (piece && ((chessTurn==='w' && piece === piece.toUpperCase()) || (chessTurn==='b' && piece === piece.toLowerCase()))) {
+    selected = [row, col];
+    legalMoves = getLegalMoves(row, col, piece);
+    renderChessBoard();
+  }
+}
+function moveChessPiece(from, to) {
+  const [fr,fc] = from, [tr,tc] = to;
+  // Animate move
+  const fromIdx = fr*8+fc, toIdx = tr*8+tc;
+  const fromSq = chessBoard.children[fromIdx];
+  const toSq = chessBoard.children[toIdx];
+  fromSq.style.transition = 'transform 0.3s cubic-bezier(.4,2,.6,1)';
+  toSq.style.transition = 'transform 0.3s cubic-bezier(.4,2,.6,1)';
+  fromSq.style.transform = `translate(${(tc-fc)*48}px,${(tr-fr)*48}px)`;
+  setTimeout(()=>{
+    chessState[tr][tc] = chessState[fr][fc];
+    chessState[fr][fc] = '';
+    chessTurn = chessTurn==='w'?'b':'w';
+    renderChessBoard();
+    chessMessage.textContent = (chessTurn==='w'?'White':'Black')+"'s turn";
+  }, 250);
+}
+function getLegalMoves(row, col, piece) {
+  // Only basic moves, no castling/en passant/promotion
+  const moves = [];
+  const isWhite = piece === piece.toUpperCase();
+  const directions = {
+    'p': [[1,0]], 'P': [[-1,0]],
+    'n': [[-2,-1],[-2,1],[-1,-2],[-1,2],[1,-2],[1,2],[2,-1],[2,1]],
+    'b': [[-1,-1],[-1,1],[1,-1],[1,1]],
+    'r': [[-1,0],[1,0],[0,-1],[0,1]],
+    'q': [[-1,-1],[-1,1],[1,-1],[1,1],[-1,0],[1,0],[0,-1],[0,1]],
+    'k': [[-1,-1],[-1,1],[1,-1],[1,1],[-1,0],[1,0],[0,-1],[0,1]]
+  };
+  if (piece.toLowerCase() === 'p') {
+    let dir = isWhite ? -1 : 1;
+    // Forward
+    if (chessState[row+dir] && !chessState[row+dir][col]) moves.push([row+dir,col]);
+    // Double move
+    if ((isWhite && row===6) || (!isWhite && row===1)) {
+      if (!chessState[row+dir][col] && !chessState[row+2*dir][col]) moves.push([row+2*dir,col]);
+    }
+    // Captures
+    for (let dc of [-1,1]) {
+      if (chessState[row+dir] && chessState[row+dir][col+dc]) {
+        let target = chessState[row+dir][col+dc];
+        if (target && ((isWhite && target===target.toLowerCase()) || (!isWhite && target===target.toUpperCase())))
+          moves.push([row+dir,col+dc]);
+      }
+    }
+  } else if (piece.toLowerCase() === 'n') {
+    for (let [dr,dc] of directions['n']) {
+      let nr=row+dr,nc=col+dc;
+      if (nr>=0&&nr<8&&nc>=0&&nc<8) {
+        let target = chessState[nr][nc];
+        if (!target || (isWhite && target===target.toLowerCase()) || (!isWhite && target===target.toUpperCase()))
+          moves.push([nr,nc]);
+      }
+    }
+  } else if (piece.toLowerCase() === 'k') {
+    for (let [dr,dc] of directions['k']) {
+      let nr=row+dr,nc=col+dc;
+      if (nr>=0&&nr<8&&nc>=0&&nc<8) {
+        let target = chessState[nr][nc];
+        if (!target || (isWhite && target===target.toLowerCase()) || (!isWhite && target===target.toUpperCase()))
+          moves.push([nr,nc]);
+      }
+    }
+  } else if (piece.toLowerCase() === 'b' || piece.toLowerCase() === 'r' || piece.toLowerCase() === 'q') {
+    let dirs = [];
+    if (piece.toLowerCase() === 'b') dirs = directions['b'];
+    if (piece.toLowerCase() === 'r') dirs = directions['r'];
+    if (piece.toLowerCase() === 'q') dirs = directions['q'];
+    for (let [dr,dc] of dirs) {
+      let nr=row+dr,nc=col+dc;
+      while (nr>=0&&nr<8&&nc>=0&&nc<8) {
+        let target = chessState[nr][nc];
+        if (!target) {
+          moves.push([nr,nc]);
+        } else {
+          if ((isWhite && target===target.toLowerCase()) || (!isWhite && target===target.toUpperCase()))
+            moves.push([nr,nc]);
+          break;
+        }
+        nr+=dr; nc+=dc;
+      }
+    }
+  }
+  return moves;
+}
+function checkChessGameEnd() {
+  // Simple checkmate/stalemate detection (not full rules)
+  let hasMove = false;
+  for (let r=0;r<8;r++) for (let c=0;c<8;c++) {
+    let p = chessState[r][c];
+    if (p && ((chessTurn==='w'&&p===p.toUpperCase())||(chessTurn==='b'&&p===p.toLowerCase()))) {
+      if (getLegalMoves(r,c,p).length) hasMove = true;
+    }
+  }
+  if (!hasMove) {
+    chessMessage.textContent = 'Game Over! ' + (chessTurn==='w'?'Black':'White') + ' wins!';
+    chessMessage.style.color = '#e17055';
+    chessConfetti();
+  }
+}
+function chessConfetti() {
+  // Chess-themed confetti
+  const icons = ['&#9812;','&#9813;','&#9814;','&#9815;','&#9816;','&#9817;','&#9820;','&#9821;','&#9822;','&#9823;'];
+  for (let i = 0; i < 50; i++) {
+    const conf = document.createElement('div');
+    conf.innerHTML = icons[Math.floor(Math.random()*icons.length)];
+    conf.style.position = 'fixed';
+    conf.style.left = Math.random()*100+'vw';
+    conf.style.top = '-2vh';
+    conf.style.fontSize = (24+Math.random()*18)+'px';
+    conf.style.opacity = 0.85;
+    conf.style.pointerEvents = 'none';
+    conf.style.zIndex = 9999;
+    conf.style.transition = 'transform 2.2s cubic-bezier(.23,1.02,.64,.99), opacity 2.2s';
+    document.body.appendChild(conf);
+    setTimeout(() => {
+      conf.style.transform = `translateY(${100+Math.random()*30}vh) rotate(${Math.random()*360}deg)`;
+      conf.style.opacity = 0;
+    }, 10);
+    setTimeout(() => conf.remove(), 2300);
+  }
+}
+renderChessBoard();
+chessMessage.textContent = "White's turn";
+
+// Chess board animation
+const style = document.createElement('style');
+style.innerHTML = `
+@keyframes chessPulse {
+  from { box-shadow: 0 0 0 4px #00b894 inset; }
+  to { box-shadow: 0 0 0 8px #00cec9 inset; }
+}
+`;
+document.head.appendChild(style);
+</script></div>
+
