@@ -5,8 +5,8 @@
 ### 🚀 Game names
 1. Sudoku
 2. Chess
-<br>
-## Here's ScreenShot of my game.
+
+## Here's ScreenShot for my game.
 <br>
 
 ![Chatbot Screenshot](GameScreenshot.png)
